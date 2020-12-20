@@ -1,5 +1,5 @@
 [package]
-name = "playboardgames"
+name = "rust-wasm-tutorial"
 version = "0.1.0"
 authors = ["Sebastian G. Q. <sgq995@gmail.com>"]
 edition = "2018"
