@@ -44,6 +44,12 @@ impl Universe {
         (row * self.width + column) as usize
     }
 
+    fn get_clamp_index(&self, row: u32, column: u32) -> usize {
+        let clamp_row = row % self.height;
+        let clamp_col = column % self.width;
+        self.get_index(clamp_row, clamp_col)
+    }
+    
     fn live_neighbor_count(&self, row: u32, column: u32) -> u8 {
         let mut count = 0;
         for delta_row in [self.height - 1, 0, 1].iter().cloned() {
@@ -99,7 +105,6 @@ impl Universe {
                     (false, 3) => true,
                     (otherwise, _) => otherwise,
                 };
-                
                 // log!("  it becomes {:?}", next_cell);
                 next.set(idx, next_cell);
             }
@@ -110,13 +115,11 @@ impl Universe {
 
     pub fn new() -> Universe {
         utils::set_panic_hook();
-        
         let width = 64;
         let height = 64;
 
         let size = (width * height) as usize;
         let mut cells = FixedBitSet::with_capacity(size);
-        
         for i in 0..size {
             cells.set(i, js_sys::Math::random() < 0.5);
         }
@@ -126,6 +129,17 @@ impl Universe {
             height,
             cells,
         }
+    }
+
+    pub fn random(&mut self) {
+        let size = self.cells.len();
+        for i in 0..size {
+            self.cells.set(i, js_sys::Math::random() < 0.5);
+        }
+    }
+
+    pub fn killall(&mut self) {
+        self.cells.clear();
     }
 
     pub fn render(&self) -> String {
@@ -158,6 +172,99 @@ impl Universe {
 
     pub fn cells(&self) -> *const u32 {
         self.cells.as_slice().as_ptr()
+    }
+
+    pub fn glider(&mut self, row: u32, column: u32) {
+        let model: [[i8; 3]; 3] = [
+            [0, 1, 0],
+            [0, 0, 1],
+            [1, 1, 1],
+        ];
+
+        // for line in &model {
+        //     for n in line {
+        //         if *n == 0 {
+
+        //         } else {
+
+        //         }
+        //     }
+        // }
+
+        let mut idx: usize;
+        let mut current_row: u32;
+        let mut current_col: u32;
+
+        //
+        current_row = row - 1 + self.height - 1;
+
+        current_col = column - 1 + self.width - 1;
+        idx = self.get_clamp_index(current_row, current_col);
+        self.cells.set(idx, false);
+
+        current_col = column + self.width - 1;
+        idx = self.get_clamp_index(current_row, current_col);
+        self.cells.set(idx, true);
+
+        current_col = column + 1 + self.width - 1;
+        idx = self.get_clamp_index(current_row, current_col);
+        self.cells.set(idx, false);
+
+        //
+        current_row = row + self.height - 1;
+
+        current_col = column - 1 + self.width - 1;
+        idx = self.get_clamp_index(current_row, current_col);
+        self.cells.set(idx, false);
+
+        current_col = column + self.width - 1;
+        idx = self.get_clamp_index(current_row, current_col);
+        self.cells.set(idx, false);
+
+        current_col = column + 1 + self.width - 1;
+        idx = self.get_clamp_index(current_row, current_col);
+        self.cells.set(idx, true);
+
+        //
+        current_row = row + 1 + self.height - 1;
+
+        current_col = column - 1 + self.width - 1;
+        idx = self.get_clamp_index(current_row, current_col);
+        self.cells.set(idx, true);
+
+        current_col = column + self.width - 1;
+        idx = self.get_clamp_index(current_row, current_col);
+        self.cells.set(idx, true);
+
+        current_col = column + 1 + self.width - 1;
+        idx = self.get_clamp_index(current_row, current_col);
+        self.cells.set(idx, true);
+    }
+
+    pub fn pulsar(&mut self, row: u32, column: u32) {
+        let idx = self.get_index(row, column);
+
+        // TODO:
+        let model: [[i8; 13]; 13] = [
+            [0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1],
+            [1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1],
+            [1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1],
+            [0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0],
+            [1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1],
+            [1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1],
+            [1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0],
+        ];
+    }
+
+    pub fn toggle_cell(&mut self, row: u32, column: u32) {
+        let idx = self.get_index(row, column);
+        self.cells.set(idx, !self.cells[idx]);
     }
 }
 

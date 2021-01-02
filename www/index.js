@@ -17,6 +17,14 @@ canvas.width = (CELL_SIZE + 1) * width + 1;
 
 const ctx = canvas.getContext('2d');
 
+let animationId = null;
+let ticksPerAnimation = 1;
+
+const playPauseButton = document.getElementById('play-pause');
+const ticksPerAnimationButton = document.getElementById('ticks-per-animation');
+const randomInitButton = document.getElementById('random-init');
+const killAllButton = document.getElementById('kill-all');
+
 const getIndex = (row, column) => {
     return row * width + column;
 };
@@ -71,16 +79,73 @@ const drawCells = () => {
 };
 
 const renderLoop = () => {
-    universe.tick();
+    for (let count = 0; count < ticksPerAnimation; ++count) {
+        universe.tick();
+    }
 
     drawGrid();
     drawCells();
 
-    requestAnimationFrame(renderLoop);
+    animationId = requestAnimationFrame(renderLoop);
 };
 
-drawGrid();
-drawCells();
-requestAnimationFrame(renderLoop);
+canvas.addEventListener('click', event => {
+    const boundingRect = canvas.getBoundingClientRect();
 
-// wasm.greet();
+    const scaleX = canvas.width / boundingRect.width;
+    const scaleY = canvas.height / boundingRect.height;
+
+    const canvasLeft = (event.clientX - boundingRect.left) * scaleX;
+    const canvasTop = (event.clientY - boundingRect.top) * scaleY;
+
+    const row = Math.min(Math.floor(canvasTop / (CELL_SIZE + 1)), height - 1);
+    const col = Math.min(Math.floor(canvasLeft / (CELL_SIZE + 1)), width - 1);
+
+    if (event.ctrlKey) {
+        universe.glider(row, col);
+    } else if (event.shiftKey) {
+        universe.pulsar(row, col);
+    } else {
+        universe.toggle_cell(row, col);
+    }
+
+    drawGrid();
+    drawCells();
+});
+
+const isPaused = () => {
+    return animationId === null;
+};
+
+const play = () => {
+    playPauseButton.textContent = '⏸';
+    renderLoop();
+};
+
+const pause = () => {
+    playPauseButton.textContent = '▶';
+    cancelAnimationFrame(animationId);
+    animationId = null;
+};
+
+playPauseButton.addEventListener('click', event => {
+    if (isPaused()) {
+        play();
+    } else {
+        pause();
+    }
+});
+
+ticksPerAnimationButton.addEventListener('change', event => {
+    ticksPerAnimation = event.target.value;
+});
+
+randomInitButton.addEventListener('click', event => {
+    universe.random();
+});
+
+killAllButton.addEventListener('click', event => {
+    universe.killall();
+});
+
+play();

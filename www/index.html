@@ -20,6 +20,14 @@
   </head>
   <body>
     <noscript>This page contains webassembly and javascript content, please enable javascript in your browser.</noscript>
+    <button id="play-pause"></button>
+    <input id="ticks-per-animation" type="range" value="1" min="1" max="100" step="1"/>
+
+    <button id="random-init">Random</button>
+    <button id="kill-all">Kill All</button>
+
+    <p>Toggle: Click / Glider: Ctrl + Click / Pulsar: Shift + Click</p>
+
     <canvas id="game-of-life-canvas"></canvas>
     <script src="./bootstrap.js"></script>
   </body>
