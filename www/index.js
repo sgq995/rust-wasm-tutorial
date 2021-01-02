@@ -1,6 +1,6 @@
-import { Universe } from "playboardgames";
-import * as wasm from "playboardgames/playboardgames_bg.wasm";
-import { Cell } from "playboardgames/playboardgames_bg";
+import { Universe } from "rust-wasm-tutorial";
+import * as wasm from "rust-wasm-tutorial/rust_wasm_tutorial_bg.wasm";
+import { Cell } from "rust-wasm-tutorial/rust_wasm_tutorial_bg";
 
 const CELL_SIZE = 5;
 const GRID_COLOR = "#CCCCCC";
