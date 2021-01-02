@@ -27,7 +27,7 @@
   },
   "homepage": "https://github.com/rustwasm/create-wasm-app#readme",
   "dependencies": {
-    "playboardgames": "file:../pkg"
+    "rust-wasm-tutorial": "file:../pkg"
   },
   "devDependencies": {
     "copy-webpack-plugin": "^6.3.0",
